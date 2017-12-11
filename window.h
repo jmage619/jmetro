@@ -23,6 +23,9 @@ class Window: public QWidget {
     float* wav;
     int wav_len;
     int cur_frame = 0;
+    double next_click = 0.;
+    unsigned int cur_time = 0;
+    double dt;
     Window();
     ~Window();
 };

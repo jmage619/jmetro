@@ -3,6 +3,7 @@ using std::cout;
 using std::endl;
 #include <stdexcept>
 #include <cstring>
+#include <cmath>
 #include <QtWidgets>
 #include "window.h"
 
@@ -17,21 +18,20 @@ int process(jack_nframes_t nframes, void* data) {
   // clear buffer to all zeros
   memset(buffer, 0, sizeof(sample_t) * nframes);
 
-  unsigned int tot_copied = 0;
-  while (true) {
-    unsigned int frames_left = window->wav_len - window->cur_frame;
-    int to_copy = frames_left < nframes - tot_copied ? frames_left: nframes - tot_copied;
-    memcpy(buffer, window->wav + window->cur_frame, sizeof(sample_t) * to_copy);
-    window->cur_frame += to_copy;
+  for (unsigned int i = 0; i < nframes; ++i) {
+    if (window->cur_frame < window->wav_len) {
+      buffer[i] = window->wav[window->cur_frame];
+      ++window->cur_frame;
+    }
 
-    if (window->cur_frame == window->wav_len)
+    ++window->cur_time;
+
+    if (window->cur_time >= lround(window->next_click)) {
       window->cur_frame = 0;
-
-    tot_copied += to_copy;
-
-    if (tot_copied == nframes)
-      break;
+      window->next_click += window->dt;
+    }
   }
+
   return 0;
 }
 
@@ -76,6 +76,10 @@ Window::Window() {
   wav = new float[sf_info.channels * sf_info.samplerate];
   sf_read_float(sf_wav, wav, sf_info.channels * wav_len);
   sf_close(sf_wav);
+
+  int sample_rate = jack_get_sample_rate(jack_client);
+  // hardcode to 80 bpm for now
+  dt = sample_rate * 60. / 80.;
 
   // if all went well, activate it!
   if (jack_activate(jack_client)) {

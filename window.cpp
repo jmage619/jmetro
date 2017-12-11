@@ -1,11 +1,37 @@
+#include <iostream>
+using std::cout;
+using std::endl;
 #include <stdexcept>
+#include <cstring>
 #include <QtWidgets>
 #include "window.h"
 
 #include <jack/jack.h>
 #include <sndfile.h>
 
+typedef jack_default_audio_sample_t sample_t;
+
 int process(jack_nframes_t nframes, void* data) {
+  Window* window = static_cast<Window*>(data);
+  sample_t* buffer = static_cast<sample_t*>(jack_port_get_buffer(window->out_port, nframes));
+  // clear buffer to all zeros
+  memset(buffer, 0, sizeof(sample_t) * nframes);
+
+  unsigned int tot_copied = 0;
+  while (true) {
+    unsigned int frames_left = window->wav_len - window->cur_frame;
+    int to_copy = frames_left < nframes - tot_copied ? frames_left: nframes - tot_copied;
+    memcpy(buffer, window->wav + window->cur_frame, sizeof(sample_t) * to_copy);
+    window->cur_frame += to_copy;
+
+    if (window->cur_frame == window->wav_len)
+      window->cur_frame = 0;
+
+    tot_copied += to_copy;
+
+    if (tot_copied == nframes)
+      break;
+  }
   return 0;
 }
 
@@ -46,8 +72,9 @@ Window::Window() {
     throw std::runtime_error("could not load sound file!");
   }
 
+  wav_len = sf_info.frames;
   wav = new float[sf_info.channels * sf_info.samplerate];
-  sf_read_float(sf_wav, wav, sf_info.channels * sf_info.frames);
+  sf_read_float(sf_wav, wav, sf_info.channels * wav_len);
   sf_close(sf_wav);
 
   // if all went well, activate it!

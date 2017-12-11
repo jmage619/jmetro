@@ -17,9 +17,10 @@ class Window: public QWidget {
     QLabel* bpm_label;
     QSpinBox* bpm_box;
     jack_client_t* jack_client;
-    jack_port_t * out_port;
+    float* wav;
 
   public:
+    jack_port_t * out_port;
     Window();
     ~Window();
 };

@@ -43,10 +43,10 @@ Window::Window() {
 
   bpm_box = new QSpinBox;
   bpm_box->setMaximum(400);
-  bpm_box->setValue(80);
 
   h_layout->addWidget(bpm_box);
   setLayout(h_layout);
+
 
   // init jack garbage
   jack_client = jack_client_open("jmetro", JackNullOption, nullptr);
@@ -77,9 +77,10 @@ Window::Window() {
   sf_read_float(sf_wav, wav, sf_info.channels * wav_len);
   sf_close(sf_wav);
 
-  int sample_rate = jack_get_sample_rate(jack_client);
-  // hardcode to 80 bpm for now
-  dt = sample_rate * 60. / 80.;
+  sample_rate = jack_get_sample_rate(jack_client);
+  connect(bpm_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &Window::updateBpm);
+  bpm_box->setValue(80);
+  next_click = dt;
 
   // if all went well, activate it!
   if (jack_activate(jack_client)) {

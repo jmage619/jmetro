@@ -30,6 +30,7 @@ class Window: public QWidget {
     jack_port_t * out_port;
     float* wav;
     int wav_len;
+    bool enabled = false;
     int cur_frame = 0;
     double next_click;
     unsigned int cur_time = 0;

@@ -18,17 +18,19 @@ int process(jack_nframes_t nframes, void* data) {
   // clear buffer to all zeros
   memset(buffer, 0, sizeof(sample_t) * nframes);
 
-  for (unsigned int i = 0; i < nframes; ++i) {
-    if (window->cur_frame < window->wav_len) {
-      buffer[i] = window->wav[window->cur_frame];
-      ++window->cur_frame;
-    }
+  if (window->enabled) {
+    for (unsigned int i = 0; i < nframes; ++i) {
+      if (window->cur_frame < window->wav_len) {
+        buffer[i] = window->wav[window->cur_frame];
+        ++window->cur_frame;
+      }
 
-    ++window->cur_time;
+      ++window->cur_time;
 
-    if (window->cur_time >= lround(window->next_click)) {
-      window->cur_frame = 0;
-      window->next_click += window->dt;
+      if (window->cur_time >= lround(window->next_click)) {
+        window->cur_frame = 0;
+        window->next_click += window->dt;
+      }
     }
   }
 
@@ -36,10 +38,17 @@ int process(jack_nframes_t nframes, void* data) {
 }
 
 void Window::enable(bool checked) {
-  if (checked)
+  if (checked) {
+    cur_frame = 0;
+    cur_time = 0;
+    next_click = dt;
+    enabled = true;
     on_button->setText("stop");
-  else
+  }
+  else {
+    enabled = false;
     on_button->setText("start");
+  }
 }
 
 Window::Window() {

@@ -35,7 +35,19 @@ int process(jack_nframes_t nframes, void* data) {
   return 0;
 }
 
+void Window::enable(bool checked) {
+  if (checked)
+    on_button->setText("stop");
+  else
+    on_button->setText("start");
+}
+
 Window::Window() {
+  QVBoxLayout* v_layout = new QVBoxLayout;
+  on_button = new QPushButton("start");
+  on_button->setCheckable(true);
+  v_layout->addWidget(on_button);
+
   QHBoxLayout* h_layout = new QHBoxLayout;
   bpm_label = new QLabel;
   bpm_label->setText("bpm:");
@@ -45,7 +57,8 @@ Window::Window() {
   bpm_box->setMaximum(400);
 
   h_layout->addWidget(bpm_box);
-  setLayout(h_layout);
+  v_layout->addLayout(h_layout);
+  setLayout(v_layout);
 
 
   // init jack garbage
@@ -78,6 +91,7 @@ Window::Window() {
   sf_close(sf_wav);
 
   sample_rate = jack_get_sample_rate(jack_client);
+  connect(on_button, &QAbstractButton::toggled, this, &Window::enable);
   connect(bpm_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &Window::updateBpm);
   bpm_box->setValue(80);
   next_click = dt;

@@ -27,7 +27,8 @@ class Window: public QWidget {
     void updateBpm(int val) {dt = sample_rate * 60. / val;}
 
   public:
-    jack_port_t * out_port;
+    jack_port_t * out_l;
+    jack_port_t * out_r;
     float* wav;
     int wav_len;
     bool enabled = false;

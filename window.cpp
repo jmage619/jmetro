@@ -23,8 +23,8 @@ int process(jack_nframes_t nframes, void* data) {
   if (window->enabled) {
     for (unsigned int i = 0; i < nframes; ++i) {
       if (window->cur_frame < window->wav_len) {
-        out_l[i] = window->wav[window->cur_frame];
-        out_r[i] = window->wav[window->cur_frame];
+        out_l[i] = window->amp * window->wav[window->cur_frame];
+        out_r[i] = window->amp * window->wav[window->cur_frame];
         ++window->cur_frame;
       }
 
@@ -56,22 +56,34 @@ void Window::enable(bool checked) {
 
 Window::Window() {
   QVBoxLayout* v_layout = new QVBoxLayout;
-  on_button = new QPushButton("start");
-  on_button->setCheckable(true);
-  v_layout->addWidget(on_button);
 
   QHBoxLayout* h_layout = new QHBoxLayout;
-  bpm_label = new QLabel;
-  bpm_label->setText("bpm:");
-  h_layout->addWidget(bpm_label);
+  QLabel* label = new QLabel;
+  label->setText("vol:");
+  h_layout->addWidget(label);
+
+  vol_slider = new QSlider(Qt::Horizontal);
+  vol_slider->setMaximum(100);
+
+  h_layout->addWidget(vol_slider);
+
+  v_layout->addLayout(h_layout);
+
+  h_layout = new QHBoxLayout;
+  label = new QLabel;
+  label->setText("bpm:");
+  h_layout->addWidget(label);
 
   bpm_box = new QSpinBox;
   bpm_box->setMaximum(400);
 
   h_layout->addWidget(bpm_box);
   v_layout->addLayout(h_layout);
-  setLayout(v_layout);
 
+  on_button = new QPushButton("start");
+  on_button->setCheckable(true);
+  v_layout->addWidget(on_button);
+  setLayout(v_layout);
 
   // init jack garbage
   jack_client = jack_client_open("jmetro", JackNullOption, nullptr);
@@ -112,7 +124,10 @@ Window::Window() {
 
   sample_rate = jack_get_sample_rate(jack_client);
   connect(on_button, &QAbstractButton::toggled, this, &Window::enable);
+  connect(vol_slider, &QSlider::valueChanged, this, &Window::updateVol);
   connect(bpm_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &Window::updateBpm);
+
+  vol_slider->setValue(100);
   bpm_box->setValue(80);
   next_click = dt;
 

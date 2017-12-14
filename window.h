@@ -1,6 +1,7 @@
 #ifndef WINDOW
 #define WINDOW
 
+//#include <iostream>
 #include <QWidget>
 
 #include <jack/jack.h>
@@ -8,15 +9,15 @@
 int process(jack_nframes_t nframes, void* data);
 
 class QPushButton;
+class QSlider;
 class QSpinBox;
-class QLabel;
 
 class Window: public QWidget {
   Q_OBJECT
 
   private:
     QPushButton* on_button;
-    QLabel* bpm_label;
+    QSlider* vol_slider;
     QSpinBox* bpm_box;
     jack_client_t* jack_client;
     int sample_rate;
@@ -25,12 +26,14 @@ class Window: public QWidget {
     void enable(bool checked);
     // should probably put mutexes around dt?
     void updateBpm(int val) {dt = sample_rate * 60. / val;}
+    void updateVol(int val) {amp = val / 100.f;}
 
   public:
     jack_port_t * out_l;
     jack_port_t * out_r;
     float* wav;
     int wav_len;
+    float amp;
     bool enabled = false;
     int cur_frame = 0;
     double next_click;

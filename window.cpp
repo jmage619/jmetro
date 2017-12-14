@@ -20,6 +20,7 @@ int process(jack_nframes_t nframes, void* data) {
   memset(out_l, 0, sizeof(sample_t) * nframes);
   memset(out_r, 0, sizeof(sample_t) * nframes);
 
+  window->enabled_mutex.lock();
   if (window->enabled) {
     for (unsigned int i = 0; i < nframes; ++i) {
       if (window->cur_frame < window->wav_len) {
@@ -36,11 +37,13 @@ int process(jack_nframes_t nframes, void* data) {
       }
     }
   }
+  window->enabled_mutex.unlock();
 
   return 0;
 }
 
 void Window::enable(bool checked) {
+  enabled_mutex.lock();
   if (checked) {
     cur_frame = 0;
     cur_time = 0;
@@ -52,6 +55,7 @@ void Window::enable(bool checked) {
     enabled = false;
     on_button->setText("start");
   }
+  enabled_mutex.unlock();
 }
 
 Window::Window() {

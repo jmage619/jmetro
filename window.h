@@ -1,6 +1,8 @@
 #ifndef WINDOW
 #define WINDOW
 
+#include <atomic>
+#include <mutex>
 //#include <iostream>
 #include <QWidget>
 
@@ -33,12 +35,13 @@ class Window: public QWidget {
     jack_port_t * out_r;
     float* wav;
     int wav_len;
-    float amp;
+    std::atomic<float> amp;
     bool enabled = false;
+    std::mutex enabled_mutex;
     int cur_frame = 0;
     double next_click;
     unsigned int cur_time = 0;
-    double dt;
+    std::atomic<double> dt;
     Window();
     ~Window();
 };

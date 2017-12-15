@@ -1,0 +1,29 @@
+jmetro
+======
+
+A dumb Jack based metronome.
+
+Repo:
+https://github.com/jmage619/jmetro
+
+jmetro is distributed under the GNU General Public License (GPL) version
+2 or later.
+
+Building
+--------
+jmetro has the following dependencies:
+
+- Jack Audio Connection Kit:
+  http://jackaudio.org/
+
+- libsndfile:
+  http://www.mega-nerd.com/libsndfile/
+
+- Qt 5:
+  http://doc.qt.io/qt-5/
+
+from project directory run:
+qmake-qt5
+make
+
+that's it!

@@ -1,7 +1,7 @@
 jmetro
 ======
 
-A dumb Jack based metronome.
+A dumb Jack based metronome with Qt based UI.
 
 Repo:
 https://github.com/jmage619/jmetro

@@ -79,6 +79,7 @@ Window::Window() {
   h_layout->addWidget(label);
 
   bpm_box = new QSpinBox;
+  bpm_box->setMinimum(1);
   bpm_box->setMaximum(400);
 
   h_layout->addWidget(bpm_box);

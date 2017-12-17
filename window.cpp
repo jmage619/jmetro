@@ -133,7 +133,8 @@ Window::Window() {
   // sound file garbage
   SF_INFO sf_info;
   sf_info.format = 0;
-  SNDFILE* sf_wav = sf_open("rimshot.wav", SFM_READ, &sf_info);
+  // just hardcode path for now
+  SNDFILE* sf_wav = sf_open("/usr/local/share/jmetro/rimshot.wav", SFM_READ, &sf_info);
   if (sf_wav == NULL) {
     jack_port_unregister(jack_client, out_l);
     jack_port_unregister(jack_client, out_r);

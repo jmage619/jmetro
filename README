@@ -9,7 +9,7 @@ https://github.com/jmage619/jmetro
 jmetro is distributed under the GNU General Public License (GPL) version
 2 or later.
 
-Building
+Building / Installing
 --------
 jmetro has the following dependencies:
 
@@ -26,4 +26,5 @@ from project directory run:
 qmake-qt5
 make
 
-that's it!
+To install, as the root user, run:
+make install
